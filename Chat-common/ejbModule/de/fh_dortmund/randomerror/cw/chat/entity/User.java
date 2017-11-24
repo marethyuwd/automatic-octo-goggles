@@ -1,12 +1,32 @@
 package de.fh_dortmund.randomerror.cw.chat.entity;
 
-import lombok.Data;
+import java.io.Serializable;
 
-@Data
-public class User {
+public class User implements Serializable {
+
+	private static final long serialVersionUID = 601501416429316308L;
 	private String username;
 	private String password;
 
+	public User(String username, String password) {
+		super();
+		this.username = username;
+		this.password = password;
+	}
 
+	public String getUsername() {
+		return username;
+	}
 
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

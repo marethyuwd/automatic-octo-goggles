@@ -8,19 +8,30 @@ import javax.naming.NamingException;
 
 import de.fh_dortmund.inf.cw.chat.client.shared.ServiceHandler;
 import de.fh_dortmund.inf.cw.chat.client.shared.UserSessionHandler;
+import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementRemote;
+import de.fh_dortmund.randomerror.cw.chat.interfaces.UserSessionRemote;
 
 public class ServiceHandlerImpl extends ServiceHandler implements UserSessionHandler {
 
 	private Context ctx;
 	private static ServiceHandlerImpl instance;
-	
+
+	private UserManagementRemote userManagement;
+	private UserSessionRemote session;
 
 	private ServiceHandlerImpl() {
 		try {
 			ctx = new InitialContext();
+			session = (UserSessionRemote) ctx.lookup(
+					"java:global/Chat-ear/Chat-ejb/UserSessionBean!de.fh_dortmund.randomerror.cw.chat.interfaces.UserSessionRemote");
+
+			userManagement = (UserManagementRemote) ctx.lookup(
+					"java:global/Chat-ear/Chat-ejb/UserManagementBean!de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementRemote");
+
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	public static ServiceHandlerImpl getInstance() {
@@ -32,61 +43,57 @@ public class ServiceHandlerImpl extends ServiceHandler implements UserSessionHan
 
 	@Override
 	public void changePassword(String oldPassword, String newPassword) throws Exception {
-		// TODO Auto-generated method stub
+		session.changePassword(oldPassword, newPassword);
 
 	}
 
 	@Override
 	public void delete(String password) throws Exception {
-		// TODO Auto-generated method stub
-
+		session.delete(password);
 	}
 
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
+		session.disconnect();
 
 	}
 
 	@Override
 	public int getNumberOfOnlineUsers() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		return userManagement.getNumberOfOnlineUsers();
 	}
 
 	@Override
 	public int getNumberOfRegisteredUsers() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		return userManagement.getNumberOfregisteredUsers();
 	}
 
 	@Override
 	public List<String> getOnlineUsers() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return userManagement.getOnlineUsers();
 	}
 
 	@Override
 	public String getUserName() {
-		// TODO Auto-generated method stub
-		return null;
+		return session.getUsername();
 	}
 
 	@Override
 	public void login(String username, String password) throws Exception {
-		// TODO Auto-generated method stub
-
+		session.login(username, password);
 	}
 
 	@Override
 	public void logout() throws Exception {
-		// TODO Auto-generated method stub
-
+		session.logout();
 	}
 
 	@Override
 	public void register(String userName, String password) throws Exception {
-		// TODO Auto-generated method stub
+		userManagement.register(userName, password);
 
 	}
 
