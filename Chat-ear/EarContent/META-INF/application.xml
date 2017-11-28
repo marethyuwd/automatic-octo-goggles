@@ -5,14 +5,24 @@
 			 					 http://xmlns.jcp.org/xml/ns/javaee/application_7.xsd"
 			 version="7">
   <module>
-    <ejb>Example-ejb.jar</ejb>
+    <ejb>chat-ejb.jar</ejb>
   </module>
   <module>
-    <java>Example-common.jar</java>
+    <java>chat-common.jar</java>
   </module>
   <jms-destination>
-    <name>java:global/jms/ExampleTopic</name>
+    <name>java:global/jms/ChatTopic</name>
     <interface-name>javax.jms.Topic</interface-name>
-    <destination-name>ExampleTopic</destination-name>
+    <destination-name>ChatTopic</destination-name>
+  </jms-destination>
+    <jms-destination>
+    <name>java:global/jms/ChatQueue</name>
+    <interface-name>javax.jms.Queue</interface-name>
+    <destination-name>ChatQueue</destination-name>
+  </jms-destination>
+    <jms-destination>
+    <name>java:global/jms/DisconnectTopic</name>
+    <interface-name>javax.jms.Topic</interface-name>
+    <destination-name>DisconnectTopic</destination-name>
   </jms-destination>
 </application>

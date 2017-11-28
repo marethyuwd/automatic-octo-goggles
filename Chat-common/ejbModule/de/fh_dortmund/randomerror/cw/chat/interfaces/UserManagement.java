@@ -9,7 +9,7 @@ public interface UserManagement {
 
 	public User login(String username, String password) throws UserException;
 
-	public User register(String username, String password);
+	public void register(String username, String password);
 
 	public void logout(User user);
 

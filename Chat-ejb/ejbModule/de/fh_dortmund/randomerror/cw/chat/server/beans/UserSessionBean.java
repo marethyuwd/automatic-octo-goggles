@@ -22,7 +22,9 @@ public class UserSessionBean implements UserSessionLocal, UserSessionRemote {
 
 	@Override
 	public String getUsername() {
-		return user.getUsername();
+		if(user!=null)
+			return user.getUsername();
+		return null;
 	}
 
 	@Override
