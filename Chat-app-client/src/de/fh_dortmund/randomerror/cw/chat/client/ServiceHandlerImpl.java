@@ -64,7 +64,6 @@ public class ServiceHandlerImpl extends ServiceHandler
 			
 			jmsContext = conFac.createContext();
 			jmsContext.createConsumer(chatTopic).setMessageListener(this);
-			jmsContext.createConsumer(disconnectTopic).setMessageListener(this);
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,10 +120,9 @@ public class ServiceHandlerImpl extends ServiceHandler
 
 	@Override
 	public void login(String username, String password) throws Exception {
-		if (session.getUsername() != null) {
-			
-		}
+		
 		session.login(username, password);
+		jmsContext.createConsumer(disconnectTopic).setMessageListener(this);
 	}
 
 	@Override
