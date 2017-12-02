@@ -2,7 +2,7 @@ package de.fh_dortmund.randomerror.cw.chat.interfaces;
 
 import java.util.ArrayList;
 
-import de.fh_dortmund.randomerror.cw.chat.entity.User;
+import de.fh_dortmund.randomerror.cw.chat.entities.User;
 import de.fh_dortmund.randomerror.cw.chat.exceptions.UserException;
 
 public interface UserManagement {
@@ -22,4 +22,10 @@ public interface UserManagement {
 	public int getNumberOfregisteredUsers();
 
 	public int getNumberOfOnlineUsers();
+
+	public void incrementUserMessageStatistic(String username);
+
+	void incrementUserLogoutStatistic(User u);
+
+	void incrementUserLoginStatistic(User u);
 }

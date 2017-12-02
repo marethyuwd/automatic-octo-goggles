@@ -18,20 +18,25 @@ import javax.naming.NamingException;
 
 import de.fh_dortmund.inf.cw.chat.client.shared.ChatMessageHandler;
 import de.fh_dortmund.inf.cw.chat.client.shared.ServiceHandler;
+import de.fh_dortmund.inf.cw.chat.client.shared.StatisticHandler;
 import de.fh_dortmund.inf.cw.chat.client.shared.UserSessionHandler;
+import de.fh_dortmund.inf.cw.chat.server.entities.CommonStatistic;
+import de.fh_dortmund.inf.cw.chat.server.entities.UserStatistic;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessage;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessageType;
+import de.fh_dortmund.randomerror.cw.chat.interfaces.CommonStatisticRepoRemote;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementRemote;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.UserSessionRemote;
 
 public class ServiceHandlerImpl extends ServiceHandler
-		implements UserSessionHandler, ChatMessageHandler, MessageListener {
+		implements UserSessionHandler, ChatMessageHandler, MessageListener, StatisticHandler {
 
 	private Context ctx;
 	private static ServiceHandlerImpl instance;
 
 	private UserManagementRemote userManagement;
 	private UserSessionRemote session;
+	private CommonStatisticRepoRemote commonStatistic;
 
 	private Queue chatQueue;
 	private Topic chatTopic;
@@ -46,6 +51,8 @@ public class ServiceHandlerImpl extends ServiceHandler
 
 			userManagement = (UserManagementRemote) ctx.lookup(
 					"java:global/Chat-ear/chat-ejb/UserManagementBean!de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementRemote");
+			commonStatistic = (CommonStatisticRepoRemote) ctx.lookup(
+					"java:global/Chat-ear/chat-ejb/CommonStatisticRepoBean!de.fh_dortmund.randomerror.cw.chat.interfaces.CommonStatisticRepoRemote");
 
 			jmsInit();
 
@@ -60,8 +67,8 @@ public class ServiceHandlerImpl extends ServiceHandler
 			ConnectionFactory conFac = (ConnectionFactory) ctx.lookup("java:comp/DefaultJMSConnectionFactory");
 			chatQueue = (Queue) ctx.lookup("java:global/jms/ChatQueue");
 			chatTopic = (Topic) ctx.lookup("java:global/jms/ChatTopic");
-			disconnectTopic=(Topic) ctx.lookup("java:global/jms/DisconnectTopic");
-			
+			disconnectTopic = (Topic) ctx.lookup("java:global/jms/DisconnectTopic");
+
 			jmsContext = conFac.createContext();
 			jmsContext.createConsumer(chatTopic).setMessageListener(this);
 		} catch (NamingException e) {
@@ -120,7 +127,7 @@ public class ServiceHandlerImpl extends ServiceHandler
 
 	@Override
 	public void login(String username, String password) throws Exception {
-		
+
 		session.login(username, password);
 		jmsContext.createConsumer(disconnectTopic).setMessageListener(this);
 	}
@@ -138,10 +145,10 @@ public class ServiceHandlerImpl extends ServiceHandler
 
 	@Override
 	public void sendChatMessage(String text) {
-		TextMessage txtMsg=jmsContext.createTextMessage(text);
+		TextMessage txtMsg = jmsContext.createTextMessage(text);
 		try {
 			txtMsg.setStringProperty("USER", getUserName());
-			jmsContext.createProducer().send(chatQueue,txtMsg);
+			jmsContext.createProducer().send(chatQueue, txtMsg);
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -163,6 +170,18 @@ public class ServiceHandlerImpl extends ServiceHandler
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public List<CommonStatistic> getStatistics() {
+
+		return commonStatistic.findAll();
+	}
+
+	@Override
+	public UserStatistic getUserStatistic() {
+
+		return session.getUserStatistic();
 	}
 
 }

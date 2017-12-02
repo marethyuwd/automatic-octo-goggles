@@ -4,7 +4,8 @@ import javax.ejb.EJB;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
 
-import de.fh_dortmund.randomerror.cw.chat.entity.User;
+import de.fh_dortmund.inf.cw.chat.server.entities.UserStatistic;
+import de.fh_dortmund.randomerror.cw.chat.entities.User;
 import de.fh_dortmund.randomerror.cw.chat.exceptions.UserException;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.HashingServiceLocal;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementLocal;
@@ -22,7 +23,7 @@ public class UserSessionBean implements UserSessionLocal, UserSessionRemote {
 
 	@Override
 	public String getUsername() {
-		if(user!=null)
+		if (user != null)
 			return user.getUsername();
 		return null;
 	}
@@ -53,10 +54,21 @@ public class UserSessionBean implements UserSessionLocal, UserSessionRemote {
 	}
 
 	@Override
-	public void changePassword(String oldPassword, String newPassword) {
-		if (hashingService.generateHash(oldPassword) == user.getPassword()) {
-			userManagement.changePassword(user, newPassword);
+	public void changePassword(String oldPassword, String newPassword) throws UserException {
+
+
+		if (hashingService.generateHash(oldPassword).equals(user.getPassword())) {
+			System.out.println("oldhash: "+user.getPassword());
+			user= userManagement.changePassword(user, newPassword);
+			System.out.println("newhash: "+user.getPassword());
+		}else {
+			throw new UserException("old Password incorrect");
 		}
+	}
+
+	@Override
+	public UserStatistic getUserStatistic() {
+		return user.getStatistic();
 	}
 
 }

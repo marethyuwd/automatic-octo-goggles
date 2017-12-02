@@ -13,7 +13,9 @@ import javax.jms.TextMessage;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessage;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessageType;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.BroadcastLocal;
+import de.fh_dortmund.randomerror.cw.chat.interfaces.CommonStatisticRepoLocal;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.MessageFilterLocal;
+import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementLocal;
 
 @MessageDriven(mappedName = "java:global/jms/ChatQueue", messageListenerInterface = MessageListener.class, activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
@@ -24,6 +26,12 @@ public class MessageProcessingBean implements MessageListener {
 	
 	@EJB
 	private BroadcastLocal broadcast;
+	
+	@EJB
+	private CommonStatisticRepoLocal commonStatisticRepo;
+	
+	@EJB
+	private UserManagementLocal userManagement;
 
 	@Override
 	public void onMessage(Message msg) {
@@ -32,7 +40,7 @@ public class MessageProcessingBean implements MessageListener {
 			TextMessage txtMsg = (TextMessage) msg;
 			ChatMessage chatMsg = new ChatMessage(ChatMessageType.TEXT, txtMsg.getStringProperty("USER"),
 					filter.filter(txtMsg), new Date());
-			
+			userManagement.incrementUserMessageStatistic(txtMsg.getStringProperty("USER"));
 			broadcast.message(chatMsg);
 			
 		} catch (JMSException e) {

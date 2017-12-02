@@ -3,13 +3,8 @@ package de.fh_dortmund.randomerror.cw.chat.interfaces;
 import javax.ejb.Local;
 
 import de.fh_dortmund.inf.cw.chat.server.entities.CommonStatistic;
-import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessage;
 
 @Local
-public interface BroadcastLocal extends Broadcast {
-
-	
-
-	
+public interface CommonStatisticRepoLocal extends CommonStatisticRepo {
 
 }

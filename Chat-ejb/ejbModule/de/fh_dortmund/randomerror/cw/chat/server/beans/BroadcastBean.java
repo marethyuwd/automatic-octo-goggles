@@ -10,6 +10,7 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Topic;
 
+import de.fh_dortmund.inf.cw.chat.server.entities.CommonStatistic;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessage;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessageType;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.BroadcastLocal;
@@ -50,6 +51,17 @@ public class BroadcastBean implements BroadcastLocal, BroadcastRemote {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	}
+
+	@Override
+	public void statistic(CommonStatistic statistic, String interval) {
+		String text = String.format("Satistik der letzten %s\n Logins: %d\n" + "Logouts: %d\n" + "Nachrichten: %d", interval,statistic.getLogins(),
+				statistic.getLogouts(), statistic.getMessages());
+
+		ChatMessage msg = new ChatMessage(ChatMessageType.STATISTIC, "Statistik", text, new Date());
+		ObjectMessage omsg = ctx.createObjectMessage(msg);
+		ctx.createProducer().send(disconnectTopic, omsg);
 
 	}
 

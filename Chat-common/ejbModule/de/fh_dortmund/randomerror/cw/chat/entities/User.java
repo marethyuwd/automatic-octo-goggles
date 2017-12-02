@@ -1,12 +1,24 @@
-package de.fh_dortmund.randomerror.cw.chat.entity;
+package de.fh_dortmund.randomerror.cw.chat.entities;
 
 import java.io.Serializable;
+
+import de.fh_dortmund.inf.cw.chat.server.entities.UserStatistic;
 
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 601501416429316308L;
 	private String username;
 	private String password;
+
+	private UserStatistic statistic;
+
+	public UserStatistic getStatistic() {
+		return statistic;
+	}
+
+	public void setStatistic(UserStatistic statistic) {
+		this.statistic = statistic;
+	}
 
 	public User(String username, String password) {
 		super();
@@ -29,4 +41,5 @@ public class User implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 }
