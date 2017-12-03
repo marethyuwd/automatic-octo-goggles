@@ -28,4 +28,6 @@ public interface UserManagement {
 	void incrementUserLogoutStatistic(User u);
 
 	void incrementUserLoginStatistic(User u);
+	
+	void deleteAll();
 }

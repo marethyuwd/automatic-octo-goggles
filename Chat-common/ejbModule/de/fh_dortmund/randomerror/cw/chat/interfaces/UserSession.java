@@ -10,7 +10,7 @@ public interface UserSession {
 
 	public void disconnect();
 
-	public void delete(String password);
+	public void delete(String password) throws UserException;
 
 	public void changePassword(String oldPassword, String newPassword) throws UserException;
 

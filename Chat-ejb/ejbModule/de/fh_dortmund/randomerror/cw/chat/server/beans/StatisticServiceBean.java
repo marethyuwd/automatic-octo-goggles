@@ -43,19 +43,19 @@ public class StatisticServiceBean implements StatisticServiceLocal, StatisticSer
 
 	@Override
 	public void createTimer() {
-		for(Timer timer:timerService.getTimers()) {
-			if(COMMON_STATISTIC_TIMER.equals(timer.getInfo())) 
+		for (Timer timer : timerService.getTimers()) {
+			if (COMMON_STATISTIC_TIMER.equals(timer.getInfo()))
 				return;
-			}
-			LocalDateTime start=LocalDateTime.now();
-			start.plusMinutes(30).withSecond(0);
-			
-			TimerConfig conf=new TimerConfig();
-			conf.setInfo(COMMON_STATISTIC_TIMER);
-			
-			timerService.createIntervalTimer(convertToDate(start), 1000*60, conf);
-		
-		
+		}
+		LocalDateTime start = LocalDateTime.now();
+		//start=start.plusMinutes(30).withSecond(0);
+		start=start.plusSeconds(30);
+
+		TimerConfig conf = new TimerConfig();
+		conf.setInfo(COMMON_STATISTIC_TIMER);
+
+		timerService.createIntervalTimer(convertToDate(start), 1000 * 30, conf);
+
 	}
 
 	private Date convertToDate(LocalDateTime localDateTime) {
@@ -64,60 +64,59 @@ public class StatisticServiceBean implements StatisticServiceLocal, StatisticSer
 
 	@Override
 	public void createFirstCommonStatistic() {
-		if(statistics.findLast()==null) {
-			CommonStatistic cs=new CommonStatistic();
-			 LocalDateTime startDate=LocalDateTime.now().withMinute(0).withSecond(0);
-			 LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
-			 
-			 Date start=convertToDate(startDate);
-			 Date end =convertToDate(endDate);
-			 
-			 cs.setStartingDate(start);
-			 cs.setEndDate(end);
-			 
-			 statistics.save(cs);
-			 
+		if (statistics.findLast() == null) {
+			CommonStatistic cs = new CommonStatistic();
+			LocalDateTime startDate = LocalDateTime.now().withMinute(0).withSecond(0);
+			// LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
+			LocalDateTime endDate = startDate.plusMinutes(1).minusSeconds(1);
+
+			Date start = convertToDate(startDate);
+			Date end = convertToDate(endDate);
+
+			cs.setStartingDate(start);
+
+			statistics.save(cs);
+
 		}
 	}
 
 	@Override
-	@Schedule(hour="*")
+	@Schedule(hour = "*", minute = "*")
 	public void createFullHourStatistic() {
 		sendStatistic("Stunde");
-		
-		CommonStatistic cs=new CommonStatistic();
-		 LocalDateTime startDate=LocalDateTime.now().withMinute(0).withSecond(0).withSecond(0);
-		 LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
-		 
-		 Date start=convertToDate(startDate);
-		 Date end =convertToDate(endDate);
-		 
-		 cs.setStartingDate(start);
-		 cs.setEndDate(end);
-		 statistics.save(cs);
-		
-		
-		
+		CommonStatistic cs = new CommonStatistic();
+		LocalDateTime startDate = LocalDateTime.now().withMinute(0).withSecond(0).withSecond(0);
+		// LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
+		LocalDateTime endDate = startDate.plusMinutes(1).minusSeconds(1);
+
+		Date start = convertToDate(startDate);
+		Date end = convertToDate(endDate);
+
+		CommonStatistic c = statistics.findLast();
+		c.setEndDate(end);
+		statistics.save(c);
+
+		cs.setStartingDate(start);
+		statistics.save(cs);
+
 	}
 
 	@Override
 	@Timeout
 	public void timeOut() {
-		for(Timer timer:timerService.getTimers()) {
-			if(COMMON_STATISTIC_TIMER.equals(timer.getInfo())) {
+		for (Timer timer : timerService.getTimers()) {
+			if (COMMON_STATISTIC_TIMER.equals(timer.getInfo())) {
 				sendStatistic("halben Stunde");
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void sendStatistic(String statType) {
 		createFirstCommonStatistic();
 		broadcast.statistic(statistics.findLast(), statType);
-		
+
 	}
-
-
 
 }

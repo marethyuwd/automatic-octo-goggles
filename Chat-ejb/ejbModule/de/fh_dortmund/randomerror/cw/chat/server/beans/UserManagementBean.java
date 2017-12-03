@@ -7,10 +7,13 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Message;
 import javax.jms.Topic;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import de.fh_dortmund.inf.cw.chat.server.entities.UserStatistic;
 import de.fh_dortmund.inf.cw.chat.server.shared.ChatMessage;
@@ -25,8 +28,7 @@ import de.fh_dortmund.randomerror.cw.chat.interfaces.StatisticServiceLocal;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementLocal;
 import de.fh_dortmund.randomerror.cw.chat.interfaces.UserManagementRemote;
 
-@Singleton
-@Startup
+@Stateless
 public class UserManagementBean implements UserManagementLocal, UserManagementRemote {
 
 	private HashMap<String, User> registeredUser;
@@ -40,6 +42,9 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 	private BroadcastLocal broadcast;
 	@EJB
 	private StatisticServiceLocal statistic;
+	
+	@PersistenceContext(unitName="ChatDB")
+	private EntityManager entityManager;
 
 	@PostConstruct
 	private void init() {
@@ -95,7 +100,7 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 	public void register(String username, String password) {
 		if (registeredUser.containsKey(username)) {
 			try {
-				throw new UserException("User already registered");
+				throw new UserException("User bereits registriert");
 			} catch (UserException e) {
 				e.printStackTrace();
 			}
@@ -172,6 +177,13 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 		uStat.setLogouts(uStat.getLogouts() + 1);
 		registeredUser.put(u.getUsername(), u);
 
+	}
+
+	@Override
+	public void deleteAll() {
+		registeredUser.clear();
+		onlineUsers.clear();
+		
 	}
 
 }

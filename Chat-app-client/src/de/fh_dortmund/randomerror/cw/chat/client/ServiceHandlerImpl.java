@@ -43,7 +43,7 @@ public class ServiceHandlerImpl extends ServiceHandler
 	private Topic disconnectTopic;
 	private JMSContext jmsContext;
 
-	private ServiceHandlerImpl() {
+	public ServiceHandlerImpl() {
 		try {
 			ctx = new InitialContext();
 			session = (UserSessionRemote) ctx.lookup(

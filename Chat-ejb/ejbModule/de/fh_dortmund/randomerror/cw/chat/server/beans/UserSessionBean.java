@@ -44,13 +44,15 @@ public class UserSessionBean implements UserSessionLocal, UserSessionRemote {
 	@Remove
 	public void disconnect() {
 		userManagement.logout(user);
+		
 	}
 
 	@Override
-	public void delete(String password) {
+	public void delete(String password) throws UserException {
 		if (hashingService.generateHash(password) == user.getPassword()) {
 			userManagement.delete(user);
 		}
+		throw new UserException("falsches Passwort");
 	}
 
 	@Override
@@ -62,7 +64,7 @@ public class UserSessionBean implements UserSessionLocal, UserSessionRemote {
 			user= userManagement.changePassword(user, newPassword);
 			System.out.println("newhash: "+user.getPassword());
 		}else {
-			throw new UserException("old Password incorrect");
+			throw new UserException("altes Passwort falsch");
 		}
 	}
 

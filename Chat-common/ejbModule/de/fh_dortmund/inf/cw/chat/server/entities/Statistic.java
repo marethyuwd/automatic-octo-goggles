@@ -2,12 +2,29 @@ package de.fh_dortmund.inf.cw.chat.server.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public class Statistic implements Serializable{
 
 	private static final long serialVersionUID = 2264298777801184541L;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Basic(optional=false)
+	private long id;
+	@Basic(optional=false)
 	private int logins;
+	@Basic(optional=false)
 	private int logouts;
+	@Basic(optional=false)
 	private int messages;
+
 
 	public Statistic(int logins, int logouts, int messages) {
 		super();

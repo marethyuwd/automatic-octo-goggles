@@ -5,12 +5,12 @@
 <resources>
 	<jdbc-connection-pool name="ChatDBPool"
 						  res-type="javax.sql.ConnectionPoolDataSource"
-						  datasource-classname="package.datasource-class">
+						  datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
 		<property name="serverName" value="localhost" />
 		<property name="port" value="3306" />
 		<property name="databaseName" value="chat" />
-		<property name="user" value="cwuser" />
-		<property name="password" value="test" />
+		<property name="user" value="root" />
+		<property name="password" value="" />
 	</jdbc-connection-pool>
 
 	<jdbc-resource enabled="true"
