@@ -56,7 +56,7 @@ public class BroadcastBean implements BroadcastLocal, BroadcastRemote {
 
 	@Override
 	public void statistic(CommonStatistic statistic, String interval) {
-		String text = String.format("Satistik der letzten %s\n Logins: %d\n" + "Logouts: %d\n" + "Nachrichten: %d", interval,statistic.getLogins(),
+		String text = String.format("Statistik der letzten %s\n Logins: %d\n" + "Logouts: %d\n" + "Nachrichten: %d", interval,statistic.getLogins(),
 				statistic.getLogouts(), statistic.getMessages());
 
 		ChatMessage msg = new ChatMessage(ChatMessageType.STATISTIC, "Statistik", text, new Date());

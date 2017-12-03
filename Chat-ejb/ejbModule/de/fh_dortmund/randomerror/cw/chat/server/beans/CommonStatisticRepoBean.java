@@ -25,7 +25,9 @@ public class CommonStatisticRepoBean implements CommonStatisticRepoLocal, Common
 	@Override
 	public CommonStatistic findLast() {
 		
-		return statistics.getLast();
+		if(statistics.isEmpty())
+			return null;
+		return statistics.get(statistics.size()-1);
 	}
 	@Override
 	public List<CommonStatistic> findAll() {
@@ -36,7 +38,7 @@ public class CommonStatisticRepoBean implements CommonStatisticRepoLocal, Common
 	@Override
 	public CommonStatistic save(CommonStatistic statistic) {
 		statistics.add(statistic);
-		return statistics.getLast();
+		return statistic;
 	}
 
 

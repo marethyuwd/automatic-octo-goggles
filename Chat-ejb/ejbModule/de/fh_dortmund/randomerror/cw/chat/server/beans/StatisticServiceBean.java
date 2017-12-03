@@ -1,6 +1,9 @@
 package de.fh_dortmund.randomerror.cw.chat.server.beans;
 
 import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -31,63 +34,90 @@ import de.fh_dortmund.randomerror.cw.chat.interfaces.StatisticServiceRemote;
 public class StatisticServiceBean implements StatisticServiceLocal, StatisticServiceRemote {
 	@Resource
 	private TimerService timerService;
-	private static final String COMMON_STATISTIC_TIMER = "COMMON_STATISTIC_TIMER";
 	@EJB
-	private CommonStatisticRepoLocal commonStatistic;
+	private CommonStatisticRepoLocal statistics;
 	@EJB
 	private BroadcastLocal broadcast;
 
-	
+	private static final String COMMON_STATISTIC_TIMER = "COMMON_STATISTIC_TIMER";
 
 	@Override
 	public void createTimer() {
-		boolean initTimer = true;
-		for (Timer timer : timerService.getTimers()) {
-			if (COMMON_STATISTIC_TIMER.equals(timer.getInfo())) {
-				initTimer = false;
+		for(Timer timer:timerService.getTimers()) {
+			if(COMMON_STATISTIC_TIMER.equals(timer.getInfo())) 
+				return;
 			}
-		}
-		if (initTimer) {
-			TimerConfig timerConfig = new TimerConfig();
-			timerConfig.setInfo(COMMON_STATISTIC_TIMER);
-			timerConfig.setPersistent(true);
-
-
-			timerService.createIntervalTimer(0, 1000 * 60 * 60, timerConfig);
-		}
-	}
-
-	@Schedule(minute="*",hour = "*", persistent = false)
-	private void fullHourStatistic() {
-		createStatistic("Stunde");
-	}
-	private void createStatistic(String interval) {
-		
-		CommonStatistic current= commonStatistic.findLast();
-		current.setEndDate(new Date());
-		broadcast.statistic(current,interval);
-
-		CommonStatistic newStat = new CommonStatistic();
-		newStat.setStartingDate(new Date());
-
-		commonStatistic.save(newStat);
-	}
-
-	@Timeout
-	private void timeOut() {
-		if (COMMON_STATISTIC_TIMER.equals(timer.getInfo())) {
-			createStatistic("halben Stunde");
+			LocalDateTime start=LocalDateTime.now();
+			start.plusMinutes(30).withSecond(0);
 			
+			TimerConfig conf=new TimerConfig();
+			conf.setInfo(COMMON_STATISTIC_TIMER);
+			
+			timerService.createIntervalTimer(convertToDate(start), 1000*60, conf);
+		
+		
+	}
+
+	private Date convertToDate(LocalDateTime localDateTime) {
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	@Override
+	public void createFirstCommonStatistic() {
+		if(statistics.findLast()==null) {
+			CommonStatistic cs=new CommonStatistic();
+			 LocalDateTime startDate=LocalDateTime.now().withMinute(0).withSecond(0);
+			 LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
+			 
+			 Date start=convertToDate(startDate);
+			 Date end =convertToDate(endDate);
+			 
+			 cs.setStartingDate(start);
+			 cs.setEndDate(end);
+			 
+			 statistics.save(cs);
+			 
 		}
 	}
 
 	@Override
-	public void createFirstStatistic() {
-		CommonStatistic newStat = new CommonStatistic();
-		Date d=new Date();
-		newStat.setStartingDate(d);
-		commonStatistic.save(newStat);
+	@Schedule(hour="*")
+	public void createFullHourStatistic() {
+		sendStatistic("Stunde");
+		
+		CommonStatistic cs=new CommonStatistic();
+		 LocalDateTime startDate=LocalDateTime.now().withMinute(0).withSecond(0).withSecond(0);
+		 LocalDateTime endDate=startDate.plusHours(1).minusSeconds(1);
+		 
+		 Date start=convertToDate(startDate);
+		 Date end =convertToDate(endDate);
+		 
+		 cs.setStartingDate(start);
+		 cs.setEndDate(end);
+		 statistics.save(cs);
+		
+		
 		
 	}
+
+	@Override
+	@Timeout
+	public void timeOut() {
+		for(Timer timer:timerService.getTimers()) {
+			if(COMMON_STATISTIC_TIMER.equals(timer.getInfo())) {
+				sendStatistic("halben Stunde");
+			}
+		}
+		
+	}
+
+	@Override
+	public void sendStatistic(String statType) {
+		createFirstCommonStatistic();
+		broadcast.statistic(statistics.findLast(), statType);
+		
+	}
+
+
 
 }

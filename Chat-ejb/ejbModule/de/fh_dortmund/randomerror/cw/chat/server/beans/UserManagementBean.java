@@ -54,9 +54,10 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 		if (!checkPassword(username, password)) {
 			throw new UserException("falsches Passwort");
 		}
-		if(onlineUsers.isEmpty())
-				statistic.createTimer();
-				statistic.createFirstStatistic();
+		if (onlineUsers.isEmpty()) {
+			statistic.createTimer();
+			statistic.createFirstCommonStatistic();
+		}
 		if (onlineUsers.contains(username)) {
 			broadcast.disconnect(username);
 			return u;
@@ -64,6 +65,7 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 			onlineUsers.add(username);
 			setLastLogin(u, new Date());
 			incrementUserLoginStatistic(u);
+			commonStatisticRepo.findLast().incrementLogins();
 
 			broadcast.message(new ChatMessage(ChatMessageType.LOGIN, username, "", new Date()));
 			return u;
@@ -109,6 +111,7 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 	public void logout(User user) {
 		onlineUsers.remove(user.getUsername());
 		incrementUserLogoutStatistic(user);
+		commonStatisticRepo.findLast().incrementLogouts();
 		broadcast.message(new ChatMessage(ChatMessageType.LOGOUT, user.getUsername(), "", new Date()));
 	}
 
@@ -147,6 +150,7 @@ public class UserManagementBean implements UserManagementLocal, UserManagementRe
 			UserStatistic uStat = u.getStatistic();
 			uStat.setMessages(uStat.getMessages() + 1);
 			registeredUser.put(username, u);
+			commonStatisticRepo.findLast().incrementMessages();
 		} catch (UserException e) {
 
 			e.printStackTrace();
